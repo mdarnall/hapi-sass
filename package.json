@@ -1,0 +1,16 @@
+{
+  "name": "hapi-sass",
+  "version": "0.0.0",
+  "description": "A Hapi.js plugin for sass",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "hapi": "^2.6.0",
+    "node-sass": "^0.8.1",
+    "mkdirp": "^0.3.5"
+  }
+}
