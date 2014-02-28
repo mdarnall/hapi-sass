@@ -2,7 +2,6 @@ var Hoek = require('hapi').utils,
     Error = require('hapi').error,
     sass = require('node-sass'),
     fs = require('fs'),
-    url = require('url'),
     dirname = require('path').dirname,
     mkdirp = require('mkdirp'),
     join = require('path').join;
@@ -20,45 +19,16 @@ var internals = {
                 return reply(Error.notFound());
             }
             else{
-                return reply(err);
+                return reply(Error.badImplementation(err));
             }
 
         },
 
-        /**
-         * Log a message.
-         *
-         * @api private
-         */
-
         log: function log(key, val) {
             console.error('  \033[90m%s :\033[0m \033[36m%s\033[0m', key, val);
-        },
-
-        checkImports : function(imports, path, fn){
-
-            var nodes = imports[path];
-
-            if (!nodes) { return fn(); }
-            if (!nodes.length) { return fn(); }
-
-            var pending = nodes.length,
-                changed = [];
-
-            nodes.forEach(function(imported){
-                fs.stat(imported.path, function(err, stat){
-                    // error or newer mtime
-                    if (err || !imported.mtime || stat.mtime > imported.mtime) {
-                        changed.push(imported.path);
-                    }
-                    --pending || fn(changed);
-                });
-            });
-
         }
     },
-    log = internals.log,
-    imports = {};
+    log = internals.log
 
 
 module.exports = {
@@ -106,20 +76,19 @@ module.exports = {
                 var compile = function () {
 
                     if (debug) {
-                        log('read', cssPath);
+                        log('read', sassPath);
                     }
 
-                    fs.readFile(sassPath, 'utf8', function (err, str) {
-
-                        if (err) {
-                            return internals.error(reply, err);
-                        }
-
-                        sass.render(str, function (err, css) {
-                            if (err) {
-                                return internals.error(reply, err);
-                            }
-                            if (debug) { log('render', sassPath); }
+                    sass.render({
+                        file: sassPath,
+                        includePaths: [sassDir].concat(settings.includePaths || []),
+                        imagePath: settings.imagePath,
+                        outputStyle: settings.outputStyle,
+                        error: function(err){
+                            return internals.error(reply,err);
+                        },
+                        success: function(css){
+                            if (debug) { log('render', css); }
 
 
                             mkdirp(dirname(cssPath), 0700, function(err){
@@ -131,15 +100,7 @@ module.exports = {
 
                                 });
                             });
-
-                        }, {
-
-                            include_paths: [sassDir].concat(settings.include_paths || []),
-                            image_path: settings.image_path || settings.imagePath,
-                            output_style: settings.output_style || settings.outputStyle
-
-                        });
-
+                        }
                     });
 
                 };
