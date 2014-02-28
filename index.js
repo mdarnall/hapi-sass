@@ -84,6 +84,7 @@ module.exports = {
                         includePaths: [sassDir].concat(settings.includePaths || []),
                         imagePath: settings.imagePath,
                         outputStyle: settings.outputStyle,
+                        sourceComments: settings.sourceComments,
                         error: function(err){
                             return internals.error(reply,err);
                         },
