@@ -33,7 +33,7 @@ var internals = {
 
 module.exports = {
     name: 'hapi-sass',
-    version: '0.0.1',
+    version: Hoek.loadPackage().version,
     register: function (plugin, options, next) {
 
         var settings = Hoek.applyToDefaults(internals.defaults, options);
