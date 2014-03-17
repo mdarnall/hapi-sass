@@ -1,31 +1,38 @@
 {
-  "name": "hapi-sass",
-  "version": "0.1.0",
-  "description": "A Hapi.js plugin for compiling and serving Sass stylesheets",
-  "main": "index.js",
-  "scripts": {
-    "test": "mocha"
-  },
-  "author": {
-    "name": "Matt Darnall",
-    "email": "mdarnall@gmail.com",
-    "url": "http://mdarnall.com"
-  },
-  "keywords": [
-    "hapi",
-    "hapijs",
-    "sass",
-    "node-sass"
-  ],
-  "license": "ISC",
-  "dependencies": {
-    "hapi": "^2.6.0",
-    "node-sass": "^0.8.1",
-    "mkdirp": "^0.3.5"
-  },
-  "devDependencies": {
-    "mocha": "^1.17.1",
-    "chai": "^1.9.0",
-    "sinon": "^1.9.0"
-  }
+    "name": "hapi-sass",
+    "version": "0.1.1",
+    "description": "A Hapi.js plugin for compiling and serving Sass stylesheets",
+    "main": "index.js",
+    "scripts": {
+        "test": "mocha"
+    },
+    "author": {
+        "name": "Matt Darnall",
+        "email": "mdarnall@gmail.com",
+        "url": "http://mdarnall.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "http://github.com/mdarnall/hapi-sass.git"
+    },
+    "bugs": {
+        "url": "http://github.com/mdarnall/hapi-sass/issues"
+    },
+    "keywords": [
+        "hapi",
+        "hapijs",
+        "sass",
+        "node-sass"
+    ],
+    "license": "MIT",
+    "dependencies": {
+        "hapi": "^2.6.0",
+        "node-sass": "^0.8.1",
+        "mkdirp": "^0.3.5"
+    },
+    "devDependencies": {
+        "mocha": "^1.17.1",
+        "chai": "^1.9.0",
+        "sinon": "^1.9.0"
+    }
 }
