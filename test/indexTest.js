@@ -1,7 +1,6 @@
 var HapiSass = require('../index');
 var expect = require('chai').expect;
 var Hoek = require('hapi').utils;
-var sinon = require('sinon');
 var Hapi = require('hapi');
 
 describe('Hapi-Sass', function(){
