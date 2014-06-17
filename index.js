@@ -4,13 +4,15 @@ var Hoek = require('hapi').utils,
     fs = require('fs'),
     dirname = require('path').dirname,
     mkdirp = require('mkdirp'),
+    autoprefixer = require('autoprefixer'),
     join = require('path').join;
 
 var internals = {
 
         defaults: {
-            src: './lib/sass'
-
+            src: './lib/sass',
+            autoprefixOptions: null,
+            doAutoprefix: false
         },
 
         error: function (reply, err) {
@@ -51,6 +53,11 @@ module.exports = {
             next(new Error('hapi-sass requires "src" directory'));
         }
 
+        // autoprefixer
+        if(settings.doAutoprefix){
+          var prefixer = autoprefixer(settings.autoprefixOptions);
+        }
+
         // Default dest dir to source
         var dest = settings.dest ? settings.dest : src;
 
@@ -89,7 +96,14 @@ module.exports = {
                             return internals.error(reply,err);
                         },
                         success: function(css){
+
                             if (debug) { log('render', css); }
+
+                            if(debug && settings.doAutoprefix) { log('autoprefix'); }
+
+                            if(settings.doAutoprefix){
+                              css = prefixer.process(css).css
+                            }                           
 
 
                             mkdirp(dirname(cssPath), 0700, function(err){
