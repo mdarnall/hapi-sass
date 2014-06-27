@@ -26,8 +26,8 @@
     ],
     "license": "MIT",
     "dependencies": {
-        "hapi": "^2.6.0",
-        "node-sass": "^0.8.1",
+        "hapi": "^6.0.2",
+        "node-sass": "^0.9.3",
         "mkdirp": "^0.3.5"
     },
     "devDependencies": {
