@@ -16,16 +16,17 @@ var HapiSass = require('hapi-sass')
 
 var server = new Hapi.Server(config.host, config.port, config.server)
 
-server.pack.register(HapiSass, {
-
-    debug: true,
-    force: true,
-    src: './lib/sass',
-    outputStyle: 'compressed',
-    sourceComments: 'normal',
-    dest: './public/css'
-
-}, function(err){
+server.pack.register({
+    plugin: require('hapi-sass'),
+    options: {
+      debug: true,
+      force: true,
+      src: './lib/sass',
+      outputStyle: 'compressed',
+      sourceComments: 'normal',
+      dest: './public/css'
+    }
+  }, function(err){
     if(err){
         console.log(err)
         return
