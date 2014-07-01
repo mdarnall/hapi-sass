@@ -1,165 +1,165 @@
-var Hoek = require('hapi').utils,
-    Error = require('hapi').error,
-    sass = require('node-sass'),
-    fs = require('fs'),
-    dirname = require('path').dirname,
-    mkdirp = require('mkdirp'),
-    autoprefixer = require('autoprefixer'),
-    join = require('path').join;
+var Error = require('hapi').error,
+  sass = require('node-sass'),
+  Hoek = require('hoek'),
+  fs = require('fs'),
+  dirname = require('path').dirname,
+  mkdirp = require('mkdirp'),
+  autoprefixer = require('autoprefixer'),
+  join = require('path').join;
 
 var internals = {
 
-        defaults: {
-            src: './lib/sass',
-            autoprefixOptions: null,
-            doAutoprefix: false
-        },
+    defaults: {
+        /* https://github.com/sass/node-sass#options */
+        debug: true,
+        force: true,
+        src: './lib/sass',
+        outputStyle: 'nested',
+        sourceComments: 'normal',
+        dest: './lib/public/css',
+        routePath: '/css/{file}.css',
+        autoprefixOptions: null,
+        doAutoprefix: false
+    },
 
-        error: function (reply, err) {
-
-            if(err.code == 'ENOENT'){
-                return reply(Error.notFound());
-            }
-            else{
-                return reply(Error.badImplementation(err));
-            }
-
-        },
-
-        log: function log(key, val) {
-            console.error('  \033[90m%s :\033[0m \033[36m%s\033[0m', key, val);
+    error: function (reply, err) {
+        if (err.code == 'ENOENT') {
+            return reply(Error.notFound());
+        }
+        else {
+            return reply(Error.internal(err));
         }
     },
-    log = internals.log
 
+    log: function log(key, val) {
+        console.error(' hapi-sass:  \033[90m%s :\033[0m \033[36m%s\033[0m', key, val);
+    }
+};
 
-module.exports = {
-    name: 'hapi-sass',
-    version: Hoek.loadPackage().version,
-    register: function (plugin, options, next) {
+exports.register = function (plugin, options, next) {
 
-        var settings = Hoek.applyToDefaults(internals.defaults, options);
+    var settings = Hoek.applyToDefaults(internals.defaults, options);
+    // Force compilation
+    var force = settings.force;
 
+    // Debug option
+    var debug = settings.debug;
 
-        // Force compilation
-        var force = settings.force;
+    // Source dir required
+    var src = settings.src;
+    if (!src) {
+        next(new Error('hapi-sass requires "src" directory'));
+    }
+    // Default dest dir to source
+    var dest = settings.dest ? settings.dest : src;
 
-        // Debug option
-        var debug = settings.debug;
+    var prefixer;
+    if (settings.doAutoprefix) {
+        prefixer = autoprefixer(settings.autoprefixOptions);
+    }
 
-        // Source dir required
-        var src = settings.src;
-        if (!src) {
-            next(new Error('hapi-sass requires "src" directory'));
-        }
+    plugin.route({
+        method: 'GET',
+        path: settings.routePath,
+        handler: function (request, reply) {
 
-        // autoprefixer
-        if(settings.doAutoprefix){
-          var prefixer = autoprefixer(settings.autoprefixOptions);
-        }
+            // todo: sass file extension configurable? (.sass/.scss)
+            var cssPath = join(dest, request.params.file + '.css'),
+              sassPath = join(src, request.params.file + '.scss'),
+              sassDir = dirname(sassPath);
 
-        // Default dest dir to source
-        var dest = settings.dest ? settings.dest : src;
+            if (debug) {
+                internals.log('source ', sassPath);
+                internals.log('dest ', cssPath);
+                internals.log('sassDir ', sassDir);
+            }
 
-        plugin.route({
-            method: 'GET',
-            // todo: configuration based path
-            path: '/css/{file}.css',
-            handler: function (request, reply) {
-
-
-                // todo: sass fileextension configurable? (.sass)
-                var path = request.path,
-                    cssPath = join(dest, request.params.file + '.css'),
-                    sassPath = join(src, request.params.file + '.scss'),
-                    sassDir = dirname(sassPath);
+            var compile = function () {
 
                 if (debug) {
-                    console.log('source: ' + sassPath);
-                    console.log('dest: ' + cssPath);
-                    console.log('sassDir: ' + sassDir)
+                    internals.log('read', sassPath);
                 }
+                sass.render({
+                    file: sassPath,
+                    includePaths: [sassDir].concat(settings.includePaths || []),
+                    imagePath: settings.imagePath,
+                    outputStyle: settings.outputStyle,
+                    sourceComments: settings.sourceComments,
+                    error: function(err){
+                        return internals.error(reply,err);
+                    },
+                    success: function(css){
 
-                var compile = function () {
+                        if (debug) { internals.log('render', css); }
 
-                    if (debug) {
-                        log('read', sassPath);
-                    }
+                        if(debug && settings.doAutoprefix) { internals.log('autoprefix'); }
 
-                    sass.render({
-                        file: sassPath,
-                        includePaths: [sassDir].concat(settings.includePaths || []),
-                        imagePath: settings.imagePath,
-                        outputStyle: settings.outputStyle,
-                        sourceComments: settings.sourceComments,
-                        error: function(err){
-                            return internals.error(reply,err);
-                        },
-                        success: function(css){
-
-                            if (debug) { log('render', css); }
-
-                            if(debug && settings.doAutoprefix) { log('autoprefix'); }
-
-                            if(settings.doAutoprefix){
-                              css = prefixer.process(css).css
-                            }                           
-
-
-                            mkdirp(dirname(cssPath), 0700, function(err){
-                                if(err) { return reply(err); }
-                                fs.writeFile(cssPath, css, 'utf8', function(err){
-
-                                    // todo: cache?
-                                    reply(css).type('text/css');
-
-                                });
-                            });
+                        if(settings.doAutoprefix){
+                            css = prefixer.process(css).css
                         }
-                    });
 
-                };
 
-                if (force) {
-                    return compile();
+                        mkdirp(dirname(cssPath), 0700, function(err){
+                            if(err) { return reply(err); }
+                            fs.writeFile(cssPath, css, 'utf8', function(err){
+
+                                // todo: cache?
+                                reply(css).type('text/css');
+
+                            });
+                        });
+                    }
+                });
+
+            };
+
+            if (force) {
+                return compile();
+            }
+
+
+            fs.stat(sassPath, function (err, sassStats) {
+
+                if (err) {
+                    return internals.error(reply, err);
                 }
-
-
-                fs.stat(sassPath, function (err, sassStats) {
+                fs.stat(cssPath, function (err, cssStats) {
 
                     if (err) {
-                        return internals.error(reply, err);
+                        if (err.code == 'ENOENT') {
+                            // css has not been compiled
+                            if (debug) {
+                                internals.log('not found, compiling', cssPath);
+                            }
+                            compile();
+
+                        } else {
+                            internals.error(reply, err);
+                        }
                     }
-                    fs.stat(cssPath, function (err, cssStats) {
+                    else { // compiled version exists, check mtimes
 
-                        if (err) {
-                            if (err.code == 'ENOENT') {
-                                // css has not been compiled
-                                if (debug) { log('not found, compiling', cssPath); }
-                                compile();
-
-                            } else {
-                                internals.error(reply, err);
+                        if (sassStats.mtime > cssStats.mtime) { // the sass version is newer
+                            if (debug) {
+                                internals.log('minified', cssPath);
                             }
+                            compile();
                         }
-                        else { // compiled version exists, check mtimes
-
-                            if (sassStats.mtime > cssStats.mtime){ // the sass version is newer
-                                if(debug){ log('minified', cssPath); }
-                                compile();
-                            }
-                            else {
-                                // serve
-                                reply.file(cssPath);
-                            }
-
+                        else {
+                            // serve
+                            reply.file(cssPath);
                         }
-                    });
-                })
 
-            }
-        });
+                    }
+                });
+            });
+        }
+    });
 
-        next();
-    }
-}
+    next();
+};
+
+exports.register.attributes = {
+    pkg: require('./package.json')
+};
+

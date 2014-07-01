@@ -12,20 +12,20 @@ $ npm install hapi-sass
 ```
 
 ```javascript
-var HapiSass = require('hapi-sass')
-
 var server = new Hapi.Server(config.host, config.port, config.server)
 
-server.pack.register(HapiSass, {
-
-    debug: true,
-    force: true,
-    src: './lib/sass',
-    outputStyle: 'compressed',
-    sourceComments: 'normal',
-    dest: './public/css'
-
-}, function(err){
+server.pack.register({
+    plugin: require('hapi-sass'),
+    options: {
+      debug: true,
+      force: true,
+      src: './lib/sass',
+      outputStyle: 'compressed',
+      sourceComments: 'normal',
+      dest: './public/css',
+      routePath: '/css/style.css'
+    }
+  }, function(err){
     if(err){
         console.log(err)
         return
@@ -37,6 +37,6 @@ server.pack.register(HapiSass, {
 })
 ```
 
-This will create a route on the server at `/css/{filename}.css`. That route will then look for a `{filename}.scss` file in the configured `src` folder. If the file exists and hasn't yet be compiled it will compile it using `node-sass` and store it in the configured `dest` folder. Compile options like `outputStyle` and `sourceComments` can be configured and will be sent to `node-sass`. 
+This will create a route on the server at `options.routePath`. That route will then look for a `{filename}.scss` file in the configured `src` folder. If the file exists and hasn't yet be compiled it will compile it using `node-sass` and store it in the configured `dest` folder. Compile options like `outputStyle` and `sourceComments` can be configured and will be sent to `node-sass`. 
 
 
