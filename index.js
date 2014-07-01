@@ -1,5 +1,6 @@
 var Error = require('hapi').error,
   sass = require('node-sass'),
+  Hoek = require('hoek'),
   fs = require('fs'),
   dirname = require('path').dirname,
   mkdirp = require('mkdirp'),
@@ -7,9 +8,16 @@ var Error = require('hapi').error,
 
 var internals = {
 
-  // defaults: {
-  //     src: './lib/sass'
-  // },
+    defaults: {
+        /* https://github.com/sass/node-sass#options */
+        debug: true,
+        force: true,
+        src: './lib/sass',
+        outputStyle: 'nested',
+        sourceComments: 'normal',
+        dest: './lib/public/css',
+        routePath: '/css/{file}.css'
+    },
 
   error: function (reply, err) {
     if(err.code == 'ENOENT'){
@@ -28,8 +36,9 @@ var internals = {
 exports.register = function (plugin, options, next){
   var settings = options;
 
-  // Force compilation
-  var force = settings.force;
+    var settings = Hoek.applyToDefaults(internals.defaults, options);
+    // Force compilation
+    var force = settings.force;
 
   // Debug option
   var debug = settings.debug;
@@ -43,12 +52,13 @@ exports.register = function (plugin, options, next){
   // Default dest dir to source
   var dest = settings.dest ? settings.dest : src;
 
-  plugin.route({
-      method: 'GET',
-      path: '/css/{file}.css',
-      handler: function (request, reply) {
-          // todo: sass file extension configurable? (.sass/.scss)
-          var cssPath = join(dest, request.params.file + '.css'),
+    plugin.route({
+        method: 'GET',
+        path: settings.routePath,
+        handler: function (request, reply) {
+
+            // todo: sass file extension configurable? (.sass/.scss)
+            var cssPath = join(dest, request.params.file + '.css'),
               sassPath = join(src, request.params.file + '.scss'),
               sassDir = dirname(sassPath);
 

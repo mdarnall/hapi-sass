@@ -22,7 +22,8 @@ server.pack.register({
       src: './lib/sass',
       outputStyle: 'compressed',
       sourceComments: 'normal',
-      dest: './public/css'
+      dest: './public/css',
+      routePath: '/css/style.css'
     }
   }, function(err){
     if(err){
@@ -36,6 +37,6 @@ server.pack.register({
 })
 ```
 
-This will create a route on the server at `/css/{filename}.css`. That route will then look for a `{filename}.scss` file in the configured `src` folder. If the file exists and hasn't yet be compiled it will compile it using `node-sass` and store it in the configured `dest` folder. Compile options like `outputStyle` and `sourceComments` can be configured and will be sent to `node-sass`. 
+This will create a route on the server at `options.routePath`. That route will then look for a `{filename}.scss` file in the configured `src` folder. If the file exists and hasn't yet be compiled it will compile it using `node-sass` and store it in the configured `dest` folder. Compile options like `outputStyle` and `sourceComments` can be configured and will be sent to `node-sass`. 
 
 
