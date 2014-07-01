@@ -25,7 +25,6 @@ var internals = {
   }
 };
 
-
 exports.register = function (plugin, options, next){
   var settings = options;
 
@@ -46,12 +45,10 @@ exports.register = function (plugin, options, next){
 
   plugin.route({
       method: 'GET',
-      // todo: configuration based path
       path: '/css/{file}.css',
       handler: function (request, reply) {
-          // todo: sass fileextension configurable? (.sass)
-          var path = request.path,
-              cssPath = join(dest, request.params.file + '.css'),
+          // todo: sass file extension configurable? (.sass/.scss)
+          var cssPath = join(dest, request.params.file + '.css'),
               sassPath = join(src, request.params.file + '.scss'),
               sassDir = dirname(sassPath);
 
