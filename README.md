@@ -12,8 +12,6 @@ $ npm install hapi-sass
 ```
 
 ```javascript
-var HapiSass = require('hapi-sass')
-
 var server = new Hapi.Server(config.host, config.port, config.server)
 
 server.pack.register({
