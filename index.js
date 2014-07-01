@@ -19,38 +19,37 @@ var internals = {
         routePath: '/css/{file}.css'
     },
 
-  error: function (reply, err) {
-    if(err.code == 'ENOENT'){
-      return reply(Error.notFound());
-    }
-    else{
-      return reply(Error.internal(err));
-    }
-  },
+    error: function (reply, err) {
+        if (err.code == 'ENOENT') {
+            return reply(Error.notFound());
+        }
+        else {
+            return reply(Error.internal(err));
+        }
+    },
 
-  log: function log(key, val) {
-    console.error(' hapi-sass:  \033[90m%s :\033[0m \033[36m%s\033[0m', key, val);
-  }
+    log: function log(key, val) {
+        console.error(' hapi-sass:  \033[90m%s :\033[0m \033[36m%s\033[0m', key, val);
+    }
 };
 
-exports.register = function (plugin, options, next){
-  var settings = options;
+exports.register = function (plugin, options, next) {
 
     var settings = Hoek.applyToDefaults(internals.defaults, options);
     // Force compilation
     var force = settings.force;
 
-  // Debug option
-  var debug = settings.debug;
+    // Debug option
+    var debug = settings.debug;
 
-  // Source dir required
-  var src = settings.src;
-  if (!src) {
-    next(new Error('hapi-sass requires "src" directory'));
-  }
+    // Source dir required
+    var src = settings.src;
+    if (!src) {
+        next(new Error('hapi-sass requires "src" directory'));
+    }
 
-  // Default dest dir to source
-  var dest = settings.dest ? settings.dest : src;
+    // Default dest dir to source
+    var dest = settings.dest ? settings.dest : src;
 
     plugin.route({
         method: 'GET',
@@ -62,87 +61,92 @@ exports.register = function (plugin, options, next){
               sassPath = join(src, request.params.file + '.scss'),
               sassDir = dirname(sassPath);
 
-          if (debug) {
-              internals.log('source ', sassPath);
-              internals.log('dest ',  cssPath);
-              internals.log('sassDir ', sassDir);
-          }
+            if (debug) {
+                internals.log('source ', sassPath);
+                internals.log('dest ', cssPath);
+                internals.log('sassDir ', sassDir);
+            }
 
-          var compile = function () {
+            var compile = function () {
 
-              if (debug) {
-                internals.log('read', sassPath);
-              }
+                if (debug) {
+                    internals.log('read', sassPath);
+                }
 
-              sass.render({
-                  file: sassPath,
-                  includePaths: [sassDir].concat(settings.includePaths || []),
-                  imagePath: settings.imagePath,
-                  outputStyle: settings.outputStyle,
-                  sourceComments: settings.sourceComments,
-                  error: function(err){
-                      return internals.error(reply,err);
-                  },
-                  success: function(css){
-                      if (debug) { internals.log('render', 'compilation ok'); }
+                sass.render({
+                    file: sassPath,
+                    includePaths: [sassDir].concat(settings.includePaths || []),
+                    imagePath: settings.imagePath,
+                    outputStyle: settings.outputStyle,
+                    sourceComments: settings.sourceComments,
+                    error: function (err) {
+                        return internals.error(reply, err);
+                    },
+                    success: function (css) {
+                        if (debug) {
+                            internals.log('render', 'compilation ok');
+                        }
 
-                      mkdirp(dirname(cssPath), 0700, function(err){
-                          if(err) { return reply(err); }
-                          fs.writeFile(cssPath, css, 'utf8', function(err){
+                        mkdirp(dirname(cssPath), 0x1c0, function (err) {
+                            if (err) {
+                                return reply(err);
+                            }
+                            fs.writeFile(cssPath, css, 'utf8', function (err) {
+                                reply(css).type('text/css');
+                            });
+                        });
+                    }
+                });
 
-                              // todo: cache?
-                              reply(css).type('text/css');
+            };
 
-                          });
-                      });
-                  }
-              });
-
-          };
-
-          if (force) {
-              return compile();
-          }
+            if (force) {
+                return compile();
+            }
 
 
-          fs.stat(sassPath, function (err, sassStats) {
+            fs.stat(sassPath, function (err, sassStats) {
 
-              if (err) {
-                  return internals.error(reply, err);
-              }
-              fs.stat(cssPath, function (err, cssStats) {
+                if (err) {
+                    return internals.error(reply, err);
+                }
+                fs.stat(cssPath, function (err, cssStats) {
 
-                  if (err) {
-                      if (err.code == 'ENOENT') {
-                          // css has not been compiled
-                          if (debug) { internals.log('not found, compiling', cssPath); }
-                          compile();
+                    if (err) {
+                        if (err.code == 'ENOENT') {
+                            // css has not been compiled
+                            if (debug) {
+                                internals.log('not found, compiling', cssPath);
+                            }
+                            compile();
 
-                      } else {
-                          internals.error(reply, err);
-                      }
-                  }
-                  else { // compiled version exists, check mtimes
+                        } else {
+                            internals.error(reply, err);
+                        }
+                    }
+                    else { // compiled version exists, check mtimes
 
-                      if (sassStats.mtime > cssStats.mtime){ // the sass version is newer
-                          if(debug){ internals.log('minified', cssPath); }
-                          compile();
-                      }
-                      else {
-                          // serve
-                          reply.file(cssPath);
-                      }
+                        if (sassStats.mtime > cssStats.mtime) { // the sass version is newer
+                            if (debug) {
+                                internals.log('minified', cssPath);
+                            }
+                            compile();
+                        }
+                        else {
+                            // serve
+                            reply.file(cssPath);
+                        }
 
-                  }
-              });
-          });
+                    }
+                });
+            });
 
-      }
-  });
+        }
+    });
 
-  next();
+    next();
 };
 
 exports.register.attributes = {
-  pkg: require('./package.json') 
+    pkg: require('./package.json')
 };
