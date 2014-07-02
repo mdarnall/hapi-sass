@@ -10,13 +10,13 @@ var internals = {
 
     defaults: {
         /* https://github.com/sass/node-sass#options */
-        debug: true,
-        force: true,
+        debug: false,
+        force: false,
         src: './lib/sass',
-        outputStyle: 'nested',
-        sourceComments: 'normal',
-        dest: './lib/public/css',
-        routePath: '/css/{file}.css'
+        dest: './public/css',
+        routePath: '/css/{file}.css',
+        outputStyle: 'compressed',
+        sourceComments: 'none'
     },
 
     error: function (reply, err) {
