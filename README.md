@@ -44,11 +44,13 @@ server.pack.register({
 
 ### Options:
 
-* `debug` : used to print statements to the console. Defaults to `false`
-* `force` : forces re-compilation for every request. Defaults to `false`
-* `src` : the directory to find the requested `.sass` file. Defaults to `./lib/sass`
-* `dest` : the destination directory to write compiled `.css` files. Defaults to `./public/css`
+* `debug`: used to print statements to the console. Defaults to `false`
+* `force`: forces re-compilation for every request. Defaults to `false`
+* `src`: the directory to find the requested `.sass` file. Defaults to `./lib/sass`
+* `dest`: the destination directory to write compiled `.css` files. Defaults to `./public/css`
 * `routePath`: the route to register with hapijs. Defaults to `/css/{file}.css`. The `{file}` portion of the string is currently significant. It's used as a request parameter. 
-* `outputStyle` : [parameter for node-sass](https://github.com/sass/node-sass#outputstyle). Defaults to `compressed`
-* `sourceComments` : [parameter for node-sass](https://github.com/sass/node-sass#sourcecomments). Defaults to `none`.
+* `outputStyle`: [parameter for node-sass](https://github.com/sass/node-sass#outputstyle). Defaults to `compressed`
+* `sourceComments`: [parameter for node-sass](https://github.com/sass/node-sass#sourcecomments). Defaults to `none`.
+* `imagePath`: [parameter for node-sass](https://github.com/sass/node-sass#imagepath). Defaults to `undefined`.
+* `includePaths`: [parameter for node-sass](https://github.com/sass/node-sass#includepaths). Defaults to `[]`.
  
