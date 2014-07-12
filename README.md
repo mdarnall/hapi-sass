@@ -1,5 +1,4 @@
-hapi-sass
-=========
+# hapi-sass
 
 A Hapi.js plugin for compiling and serving Sass stylesheets using [node-sass](https://github.com/andrew/node-sass). This is a port of their express middleware to a hapi.js plugin. 
 
