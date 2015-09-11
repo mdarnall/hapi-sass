@@ -126,7 +126,7 @@ exports.register = function (plugin, options, next) {
                     }
                     else { // compiled version exists, check mtimes
 
-                        if (sassStats.mtime > cssStats.mtime) { // the sass version is newer
+                        if (sassStats.mtime.getTime() > cssStats.mtime.getTime()) { // the sass version is newer
                             if (debug) {
                                 internals.log('minified', cssPath);
                             }
