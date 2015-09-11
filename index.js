@@ -16,7 +16,8 @@ var internals = {
         dest: './public/css',
         routePath: '/css/{file}.css',
         outputStyle: 'compressed',
-        sourceComments: 'none'
+        sourceComments: 'none',
+        srcExtension: 'scss'
     },
 
     error: function (reply, err) {
@@ -56,9 +57,8 @@ exports.register = function (plugin, options, next) {
         path: settings.routePath,
         handler: function (request, reply) {
 
-            // todo: sass file extension configurable? (.sass/.scss)
             var cssPath = join(dest, request.params.file + '.css'),
-              sassPath = join(src, request.params.file + '.scss'),
+              sassPath = join(src, request.params.file + '.' + settings.srcExtension ),
               sassDir = dirname(sassPath);
 
             if (debug) {
@@ -80,6 +80,7 @@ exports.register = function (plugin, options, next) {
                     outputStyle: settings.outputStyle,
                     sourceComments: settings.sourceComments,
                     error: function (err) {
+                        console.log( internals, err );
                         return internals.error(reply, err);
                     },
                     success: function (css) {
