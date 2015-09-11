@@ -80,7 +80,6 @@ exports.register = function (plugin, options, next) {
                     outputStyle: settings.outputStyle,
                     sourceComments: settings.sourceComments,
                     error: function (err) {
-                        console.log( internals, err );
                         return internals.error(reply, err);
                     },
                     success: function (css) {
