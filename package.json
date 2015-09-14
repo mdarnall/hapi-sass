@@ -24,6 +24,9 @@
     "sass",
     "node-sass"
   ],
+  "engines": {
+    "node": ">=4.0.0"
+  },
   "license": "MIT",
   "dependencies": {
     "hapi": "^10.0.0",
