@@ -9,12 +9,14 @@
 'use strict';
 
 var Hapi = require('hapi');
+var HapiSass = require('../index')
 
-var server = new Hapi.Server('localhost', 1337);
+var server = new Hapi.Server();
+server.connection({ port: 1337 });
 
 var options = {
     src: './sass',
-    dest:'./css',
+    dest: './css',
     force: true,
     debug: true,
     routePath: '/css/{file}.css',
@@ -23,13 +25,14 @@ var options = {
     sourceComments: 'map'
 };
 
-server.pack.register({
-      plugin: require("../index.js"),
-      options: options
-  }
-  , function(err) {
-      if (err) throw err;
-      server.start(function() {
-          console.log("Hapi server started @ " + server.info.uri);
-      });
-  });
+server.register({
+        register: HapiSass,
+        options: options
+    }
+    , function (err) {
+        if (err) throw err;
+        server.start(function () {
+            server.log("Hapi server started @ " + server.info.uri);
+        });
+    }
+);
