@@ -33,7 +33,7 @@ var internals = {
     }
 };
 
-exports.register = function (plugin, options, next) {
+exports.register = function (server, options, next) {
 
     var settings = Hoek.applyToDefaults(internals.defaults, options);
     // Force compilation
@@ -51,7 +51,7 @@ exports.register = function (plugin, options, next) {
     // Default dest dir to source
     var dest = settings.dest ? settings.dest : src;
 
-    plugin.route({
+    server.route({
         method: 'GET',
         path: settings.routePath,
         handler: function (request, reply) {
