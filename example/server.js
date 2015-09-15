@@ -15,12 +15,12 @@ var server = new Hapi.Server();
 server.connection({ port: 1337 });
 
 var options = {
-    src: './sass',
-    dest: './css',
+    src: './example/sass',
+    dest: './example/css',
     force: true,
     debug: true,
     routePath: '/css/{file}.css',
-    includePaths: ['./vendor/sass'],
+    includePaths: ['./example/vendor/sass'],
     outputStyle: 'nested',
     sourceComments: 'map'
 };

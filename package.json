@@ -33,9 +33,10 @@
     "hapi": ">=10.0.0"
   },
   "dependencies": {
-    "node-sass": "^3.3.2",
+    "boom": "^2.8.0",
+    "hoek": "^2.3.0",
     "mkdirp": "^0.3.5",
-    "hoek": "^2.3.0"
+    "node-sass": "^3.3.2"
   },
   "devDependencies": {
     "mocha": "^1.17.1",
