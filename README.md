@@ -16,29 +16,34 @@ $ npm install hapi-sass --save
 ```
 
 ```javascript
-var server = new Hapi.Server(config.host, config.port, config.server)
+var Hapi = require('hapi');
+var HapiSass = require('../index')
 
-server.pack.register({
-    plugin: require('hapi-sass'),
-    options: {
-      debug: true,
-      force: true,
-      src: './lib/sass',
-      outputStyle: 'compressed',
-      sourceComments: 'normal',
-      dest: './public/css',
-      routePath: '/css/{file}.css'
-    }
-  }, function(err){
-    if(err){
-        console.log(err)
-        return
-    }
+var server = new Hapi.Server();
+server.connection({ port: 1337 });
 
-    server.route(routes)
-    server.start()
-    console.log('Running on port: ' + config.port);
-})
+var options = {
+    src: './example/sass',
+    dest: './example/css',
+    force: true,
+    debug: true,
+    routePath: '/css/{file}.css',
+    includePaths: ['./example/vendor/sass'],
+    outputStyle: 'nested',
+    sourceComments: true
+};
+
+server.register({
+        register: HapiSass,
+        options: options
+    }
+    , function (err) {
+        if (err) throw err;
+        server.start(function () {
+            server.log("Hapi server started @ " + server.info.uri);
+        });
+    }
+);
 ```
 
 ### Options:
