@@ -1,4 +1,4 @@
-var Error = require('hapi').error,
+var Boom = require('boom'),
   sass = require('node-sass'),
   Hoek = require('hoek'),
   fs = require('fs'),
@@ -16,15 +16,15 @@ var internals = {
         dest: './public/css',
         routePath: '/css/{file}.css',
         outputStyle: 'compressed',
-        sourceComments: 'none'
+        sourceComments: false
     },
 
     error: function (reply, err) {
         if (err.code == 'ENOENT') {
-            return reply(Error.notFound());
+            return reply(Boom.notFound());
         }
         else {
-            return reply(Error.internal(err));
+            return reply(Boom.internal(err));
         }
     },
 
@@ -33,7 +33,7 @@ var internals = {
     }
 };
 
-exports.register = function (plugin, options, next) {
+exports.register = function (server, options, next) {
 
     var settings = Hoek.applyToDefaults(internals.defaults, options);
     // Force compilation
@@ -45,13 +45,13 @@ exports.register = function (plugin, options, next) {
     // Source dir required
     var src = settings.src;
     if (!src) {
-        next(new Error('hapi-sass requires "src" directory'));
+        next(new Boom('hapi-sass requires "src" directory'));
     }
 
     // Default dest dir to source
     var dest = settings.dest ? settings.dest : src;
 
-    plugin.route({
+    server.route({
         method: 'GET',
         path: settings.routePath,
         handler: function (request, reply) {
@@ -78,26 +78,26 @@ exports.register = function (plugin, options, next) {
                     includePaths: [sassDir].concat(settings.includePaths || []),
                     imagePath: settings.imagePath,
                     outputStyle: settings.outputStyle,
-                    sourceComments: settings.sourceComments,
-                    error: function (err) {
+                    sourceComments: settings.sourceComments
+                }, function(err, result){
+
+                    if(err){
                         return internals.error(reply, err);
-                    },
-                    success: function (css) {
-                        if (debug) {
-                            internals.log('render', 'compilation ok');
-                        }
-
-                        mkdirp(dirname(cssPath), 0x1c0, function (err) {
-                            if (err) {
-                                return reply(err);
-                            }
-                            fs.writeFile(cssPath, css, 'utf8', function (err) {
-                                reply(css).type('text/css');
-                            });
-                        });
                     }
-                });
 
+                    if (debug) {
+                        internals.log('render', 'compilation ok');
+                    }
+
+                    mkdirp(dirname(cssPath), 0x1c0, function (err) {
+                        if (err) {
+                            return reply(err);
+                        }
+                        fs.writeFile(cssPath, result.css, 'utf8', function (err) {
+                            reply(result.css).type('text/css');
+                        });
+                    });
+                });
             };
 
             if (force) {
