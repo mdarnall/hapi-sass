@@ -22,7 +22,7 @@ var options = {
     routePath: '/css/{file}.css',
     includePaths: ['./example/vendor/sass'],
     outputStyle: 'nested',
-    sourceComments: 'map'
+    sourceComments: true
 };
 
 server.register({

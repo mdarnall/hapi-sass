@@ -16,7 +16,7 @@ var internals = {
         dest: './public/css',
         routePath: '/css/{file}.css',
         outputStyle: 'compressed',
-        sourceComments: 'none'
+        sourceComments: false
     },
 
     error: function (reply, err) {

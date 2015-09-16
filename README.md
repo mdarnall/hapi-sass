@@ -54,7 +54,7 @@ server.register({
 * `dest`: the destination directory to write compiled `.css` files. Defaults to `./public/css`
 * `routePath`: the route to register with hapijs. Defaults to `/css/{file}.css`. The `{file}` portion of the string is currently significant. It's used as a request parameter. 
 * `outputStyle`: [parameter for node-sass](https://github.com/sass/node-sass#outputstyle). Defaults to `compressed`
-* `sourceComments`: [parameter for node-sass](https://github.com/sass/node-sass#sourcecomments). Defaults to `none`.
+* `sourceComments`: [parameter for node-sass](https://github.com/sass/node-sass#sourcecomments). Defaults to `false`.
 * `imagePath`: [parameter for node-sass](https://github.com/sass/node-sass#imagepath). Defaults to `undefined`.
 * `includePaths`: [parameter for node-sass](https://github.com/sass/node-sass#includepaths). Defaults to `[]`.
  
