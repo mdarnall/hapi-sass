@@ -1,10 +1,11 @@
 {
   "name": "hapi-sass",
-  "version": "1.1.0",
+  "version": "2.1.0",
   "description": "A Hapi.js plugin for compiling and serving Sass stylesheets",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha --ui bdd",
+    "start": "node example/server.js"
   },
   "author": {
     "name": "Matt Darnall",
@@ -24,16 +25,22 @@
     "sass",
     "node-sass"
   ],
+  "engines": {
+    "node": ">=4.0.0"
+  },
   "license": "MIT",
+  "peerDependencies": {
+    "hapi": ">=10.0.0"
+  },
   "dependencies": {
-    "hapi": "^9.3.1",
-    "node-sass": "^3.3.2",
+    "boom": "^2.8.0",
+    "hoek": "^2.3.0",
     "mkdirp": "^0.3.5",
-    "hoek": "^2.3.0"
+    "node-sass": "^3.3.2"
   },
   "devDependencies": {
     "mocha": "^1.17.1",
-    "chai": "^1.9.0",
+    "chai": "^3.2.0",
     "sinon": "^1.9.0"
   }
 }
