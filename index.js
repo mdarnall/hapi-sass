@@ -82,6 +82,9 @@ exports.register = function (server, options, next) {
                 }, function(err, result){
 
                     if(err){
+                        if (debug) {
+                            internals.log('error', err.formatted);
+                        }
                         return internals.error(reply, err);
                     }
 
