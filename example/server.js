@@ -9,7 +9,8 @@
 'use strict';
 
 var Hapi = require('hapi');
-var HapiSass = require('../index')
+var HapiSass = require('../index');
+var Inert = require('inert');
 
 var server = new Hapi.Server();
 server.connection({ port: 1337 });

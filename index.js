@@ -148,5 +148,6 @@ exports.register = function (server, options, next) {
 };
 
 exports.register.attributes = {
+    dependencies: 'inert',
     pkg: require('./package.json')
 };
