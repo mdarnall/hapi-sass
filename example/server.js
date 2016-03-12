@@ -27,10 +27,10 @@ var options = {
     srcExtension: 'scss'
 };
 
-server.register({
+server.register([Inert, {
         register: HapiSass,
         options: options
-    }
+    }]
     , function (err) {
         if (err) throw err;
         server.start(function () {
