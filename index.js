@@ -1,10 +1,10 @@
 var Boom = require('boom'),
-  sass = require('node-sass'),
-  Hoek = require('hoek'),
-  fs = require('fs'),
-  dirname = require('path').dirname,
-  mkdirp = require('mkdirp'),
-  join = require('path').join;
+    sass = require('node-sass'),
+    Hoek = require('hoek'),
+    fs = require('fs'),
+    dirname = require('path').dirname,
+    mkdirp = require('mkdirp'),
+    join = require('path').join;
 
 var internals = {
 
@@ -29,8 +29,10 @@ var internals = {
         }
     },
 
-    log: function log(key, val) {
-        console.error(' hapi-sass:  \033[90m%s :\033[0m \033[36m%s\033[0m', key, val);
+    log: function () {
+        var args = Array.prototype.slice.call(arguments);
+        args[0] = '(hapi-sass) ' + args[0];
+        console.log.apply(console, args)
     }
 };
 
@@ -58,19 +60,21 @@ exports.register = function (server, options, next) {
         handler: function (request, reply) {
 
             var cssPath = join(dest, request.params.file + '.css'),
-              sassPath = join(src, request.params.file + '.' + settings.srcExtension ),
-              sassDir = dirname(sassPath);
+                sassPath = join(src, request.params.file + '.' + settings.srcExtension),
+                sassDir = dirname(sassPath);
 
             if (debug) {
-                internals.log('source ', sassPath);
-                internals.log('dest ', cssPath);
-                internals.log('sassDir ', sassDir);
+                internals.log("Processing Request with values: %j", {
+                    "sassPath": sassPath,
+                    "dest": dest,
+                    "sassDir": sassDir
+                })
             }
 
             var compile = function () {
 
                 if (debug) {
-                    internals.log('read', sassPath);
+                    internals.log('Compiling Sass at %s', sassPath);
                 }
 
                 sass.render({
@@ -79,14 +83,17 @@ exports.register = function (server, options, next) {
                     imagePath: settings.imagePath,
                     outputStyle: settings.outputStyle,
                     sourceComments: settings.sourceComments
-                }, function(err, result){
+                }, function (err, result) {
 
-                    if(err){
+                    if (err) {
+                        if (debug) {
+                            internals.log('Compilation failed: %s - %s:%d', err.message, err.file, err.line);
+                        }
                         return internals.error(reply, err);
                     }
 
                     if (debug) {
-                        internals.log('render', 'compilation ok');
+                        internals.log('Compilation ok');
                     }
 
                     mkdirp(dirname(cssPath), 0x1c0, function (err) {
@@ -116,7 +123,7 @@ exports.register = function (server, options, next) {
                         if (err.code == 'ENOENT') {
                             // css has not been compiled
                             if (debug) {
-                                internals.log('not found, compiling', cssPath);
+                                internals.log('Compiled file not found, compiling %s', cssPath);
                             }
                             compile();
 
@@ -128,19 +135,20 @@ exports.register = function (server, options, next) {
 
                         if (sassStats.mtime.getTime() > cssStats.mtime.getTime()) { // the sass version is newer
                             if (debug) {
-                                internals.log('minified', cssPath);
+                                internals.log('Sass file is newer, compiling %s', cssPath);
                             }
                             compile();
                         }
                         else {
                             // serve
+                            if (debug) {
+                                internals.log('Compiled file found and up to date. Serving');
+                            }
                             reply.file(cssPath);
                         }
-
                     }
                 });
             });
-
         }
     });
 
