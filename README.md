@@ -18,6 +18,7 @@ $ npm install hapi-sass --save
 ```javascript
 var Hapi = require('hapi');
 var HapiSass = require('../index')
+var Inert = require('inert');
 
 var server = new Hapi.Server();
 server.connection({ port: 1337 });
@@ -34,10 +35,10 @@ var options = {
     srcExtension: 'scss'
 };
 
-server.register({
+server.register([Inert, {
         register: HapiSass,
         options: options
-    }
+    }]
     , function (err) {
         if (err) throw err;
         server.start(function () {
@@ -46,6 +47,8 @@ server.register({
     }
 );
 ```
+
+See the `example/` folder for more. 
 
 ### Options:
 
