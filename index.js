@@ -1,3 +1,5 @@
+'use strict'
+
 var Boom = require('boom'),
     sass = require('node-sass'),
     Hoek = require('hoek'),
@@ -31,7 +33,7 @@ var internals = {
 
     log: function () {
         var args = Array.prototype.slice.call(arguments);
-        args[0] = '(hapi-sass) ' + args[0];
+        args[0] = '[hapi-sass] ' + args[0];
         console.log.apply(console, args)
     }
 };
@@ -87,7 +89,8 @@ exports.register = function (server, options, next) {
 
                     if (err) {
                         if (debug) {
-                            internals.log('Compilation failed: %s - %s:%d', err.message, err.file, err.line);
+                            let message = err.formatted ? err.formatted : err.message;
+                            internals.log('Compilation failed: %s', message);
                         }
                         return internals.error(reply, err);
                     }
@@ -101,6 +104,10 @@ exports.register = function (server, options, next) {
                             return reply(err);
                         }
                         fs.writeFile(cssPath, result.css, 'utf8', function (err) {
+
+                            if(err && debug){
+                                internals.log("Error writing file - %s", err.message);
+                            }
                             reply(result.css).type('text/css');
                         });
                     });
