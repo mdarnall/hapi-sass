@@ -9,26 +9,28 @@
 'use strict';
 
 var Hapi = require('hapi');
-var HapiSass = require('../index')
+var HapiSass = require('../index');
+var Inert = require('inert');
 
 var server = new Hapi.Server();
 server.connection({ port: 1337 });
 
 var options = {
-    src: './example/sass',
-    dest: './example/css',
+    src: './sass',
+    dest: './css',
     force: true,
     debug: true,
     routePath: '/css/{file}.css',
-    includePaths: ['./example/vendor/sass'],
+    includePaths: ['./vendor/sass'],
     outputStyle: 'nested',
-    sourceComments: true
+    sourceComments: true,
+    srcExtension: 'scss'
 };
 
-server.register({
+server.register([Inert, {
         register: HapiSass,
         options: options
-    }
+    }]
     , function (err) {
         if (err) throw err;
         server.start(function () {

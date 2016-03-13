@@ -18,6 +18,7 @@ $ npm install hapi-sass --save
 ```javascript
 var Hapi = require('hapi');
 var HapiSass = require('../index')
+var Inert = require('inert');
 
 var server = new Hapi.Server();
 server.connection({ port: 1337 });
@@ -30,13 +31,14 @@ var options = {
     routePath: '/css/{file}.css',
     includePaths: ['./example/vendor/sass'],
     outputStyle: 'nested',
-    sourceComments: true
+    sourceComments: true,
+    srcExtension: 'scss'
 };
 
-server.register({
+server.register([Inert, {
         register: HapiSass,
         options: options
-    }
+    }]
     , function (err) {
         if (err) throw err;
         server.start(function () {
@@ -46,11 +48,14 @@ server.register({
 );
 ```
 
+See the `example/` folder for more. 
+
 ### Options:
 
 * `debug`: used to print statements to the console. Defaults to `false`
 * `force`: forces re-compilation for every request. Defaults to `false`
 * `src`: the directory to find the requested `.sass` file. Defaults to `./lib/sass`
+* `srcExtension`: the extension of the requested `.sass` file. Defaults to `scss`
 * `dest`: the destination directory to write compiled `.css` files. Defaults to `./public/css`
 * `routePath`: the route to register with hapijs. Defaults to `/css/{file}.css`. The `{file}` portion of the string is currently significant. It's used as a request parameter. 
 * `outputStyle`: [parameter for node-sass](https://github.com/sass/node-sass#outputstyle). Defaults to `compressed`
