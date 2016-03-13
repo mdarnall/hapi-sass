@@ -4,8 +4,7 @@
   "description": "A Hapi.js plugin for compiling and serving Sass stylesheets",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --ui bdd",
-    "start": "node example/server.js"
+    "test": "mocha --ui bdd"
   },
   "author": {
     "name": "Matt Darnall",
