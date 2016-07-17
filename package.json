@@ -1,6 +1,6 @@
 {
   "name": "hapi-sass",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "A Hapi.js plugin for compiling and serving Sass stylesheets",
   "main": "index.js",
   "scripts": {
