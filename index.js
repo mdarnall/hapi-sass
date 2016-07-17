@@ -163,6 +163,7 @@ exports.register = function (server, options, next) {
 };
 
 exports.register.attributes = {
+    multiple: true,
     dependencies: 'inert',
     pkg: require('./package.json')
 };
