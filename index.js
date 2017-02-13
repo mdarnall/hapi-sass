@@ -84,6 +84,7 @@ exports.register = function (server, options, next) {
                     includePaths: [sassDir].concat(settings.includePaths || []),
                     imagePath: settings.imagePath,
                     outputStyle: settings.outputStyle,
+                    functions: settings.functions,
                     sourceComments: settings.sourceComments
                 }, function (err, result) {
 
