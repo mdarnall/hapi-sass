@@ -15,7 +15,7 @@ var Inert = require('inert');
 var server = new Hapi.Server();
 server.connection({ port: 1337 });
 
-var options = {
+let options = {
     src: './sass',
     dest: './css',
     force: true,
@@ -24,6 +24,7 @@ var options = {
     includePaths: ['./vendor/sass'],
     outputStyle: 'nested',
     sourceComments: true,
+    functions: require('./functions'),
     srcExtension: 'scss'
 };
 
