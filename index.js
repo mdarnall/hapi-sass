@@ -59,6 +59,7 @@ exports.register = function (server, options, next) {
     server.route({
         method: 'GET',
         path: settings.routePath,
+        config: { files: { relativeTo: './' } },
         handler: function (request, reply) {
 
             var cssPath = join(dest, request.params.file + '.css'),
