@@ -12,8 +12,7 @@ var Hapi = require('hapi');
 var HapiSass = require('../index');
 var Inert = require('inert');
 
-var server = new Hapi.Server();
-server.connection({ port: 1337 });
+const server = new Hapi.Server();
 
 let options = {
     src: './sass',
@@ -28,14 +27,19 @@ let options = {
     srcExtension: 'scss'
 };
 
-server.register([Inert, {
-        register: HapiSass,
-        options: options
-    }]
-    , function (err) {
-        if (err) throw err;
-        server.start(function () {
-            server.log("Hapi server started @ " + server.info.uri);
-        });
+const provision = async () => {
+    try {
+        await server.register([Inert, {
+            plugin: HapiSass,
+            options: options
+        }]);
+
+        await server.start();
+
+        server.log("Hapi server started @ " + server.info.uri);
+    } catch (e) {
+        throw e;
     }
-);
+};
+
+provision();

@@ -12,7 +12,7 @@ The plugin will map the request to a sass file in the configured `src` directory
 ### Example usage:
 
 ```shell
-$ npm install hapi-sass --save
+npm install hapi-sass --save
 ```
 
 ```javascript
@@ -20,8 +20,7 @@ var Hapi = require('hapi');
 var HapiSass = require('../index')
 var Inert = require('inert');
 
-var server = new Hapi.Server();
-server.connection({ port: 1337 });
+const server = new Hapi.Server();
 
 var options = {
     src: './example/sass',
@@ -36,17 +35,22 @@ var options = {
     srcExtension: 'scss'
 };
 
-server.register([Inert, {
-        register: HapiSass,
-        options: options
-    }]
-    , function (err) {
-        if (err) throw err;
-        server.start(function () {
-            server.log("Hapi server started @ " + server.info.uri);
-        });
+const provision = async () => {
+    try {
+        await server.register([Inert, {
+            plugin: HapiSass,
+            options: options
+        }]);
+
+        await server.start();
+
+        server.log("Hapi server started @ " + server.info.uri);
+    } catch (e) {
+        throw e;
     }
-);
+};
+
+provision();
 ```
 
 See the `example/` folder for more.
