@@ -1,0 +1,17 @@
+{
+    "jade": {
+        "indent_size": 4
+    },
+    "js": {
+	    "indent_size": 4,
+	    "indent_char": " ",
+	    "indent_level": 0,
+	    "indent_with_tabs": false,
+	    "preserve_newlines": true,
+	    "keep_array_indentation": false,
+	    "keep_function_indentation": false,
+	    "break_chained_methods": false,
+	    "space_after_anon_function": true,
+	    "space_before_conditional": true,
+    }
+}
