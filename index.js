@@ -22,11 +22,11 @@ var internals = {
         srcExtension: 'scss'
     },
 
-    error: function (reply, err) {
+    error: function (h, err) {
         if (err.code == 'ENOENT') {
-            return reply(Boom.notFound());
+            return Boom.notFound();
         } else {
-            return reply(Boom.internal(err));
+            return Boom.internal(err);
         }
     },
 
@@ -64,7 +64,7 @@ exports.plugin = {
                     relativeTo: './'
                 }
             },
-            handler: function (request, reply) {
+            handler: function (request, h) {
 
                 var cssPath = join(dest, request.params.file + '.css'),
                     sassPath = join(src, request.params.file + '.' + settings.srcExtension),
@@ -98,7 +98,7 @@ exports.plugin = {
                                 let message = err.formatted ? err.formatted : err.message;
                                 internals.log('Compilation failed: %s', message);
                             }
-                            return internals.error(reply, err);
+                            return internals.error(h, err);
                         }
 
                         if (debug) {
@@ -107,14 +107,14 @@ exports.plugin = {
 
                         mkdirp(dirname(cssPath), 0x1c0, function (err) {
                             if (err) {
-                                return reply(err);
+                                return err;
                             }
                             fs.writeFile(cssPath, result.css, 'utf8', function (err) {
 
                                 if (err && debug) {
                                     internals.log("Error writing file - %s", err.message);
                                 }
-                                reply(result.css).type('text/css');
+                                h.response(result.css).type('text/css');
                             });
                         });
                     });
@@ -125,9 +125,8 @@ exports.plugin = {
                 }
 
                 fs.stat(sassPath, function (err, sassStats) {
-
                     if (err) {
-                        return internals.error(reply, err);
+                        return internals.error(h, err);
                     }
                     fs.stat(cssPath, function (err, cssStats) {
 
@@ -140,7 +139,7 @@ exports.plugin = {
                                 compile();
 
                             } else {
-                                internals.error(reply, err);
+                                internals.error(h, err);
                             }
                         } else { // compiled version exists, check mtimes
 
@@ -154,7 +153,7 @@ exports.plugin = {
                                 if (debug) {
                                     internals.log('Compiled file found and up to date. Serving');
                                 }
-                                reply.file(cssPath);
+                                h.file(cssPath);
                             }
                         }
                     });
