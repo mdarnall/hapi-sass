@@ -8,6 +8,12 @@ var Boom = require('boom'),
     mkdirp = require('mkdirp'),
     join = require('path').join;
 
+const {
+    promisify
+} = require('util');
+
+const sassRenderAsync = promisify(sass.render);
+
 var internals = {
 
     defaults: {
@@ -50,7 +56,7 @@ exports.plugin = {
         // Source dir required
         var src = settings.src;
         if (!src) {
-            next(new Boom('hapi-sass requires "src" directory'));
+            return Boom.badRequest('hapi-sass requires "src" directory');
         }
 
         // Default dest dir to source
@@ -64,8 +70,7 @@ exports.plugin = {
                     relativeTo: './'
                 }
             },
-            handler: function (request, h) {
-
+            handler: async function (request, h) {
                 var cssPath = join(dest, request.params.file + '.css'),
                     sassPath = join(src, request.params.file + '.' + settings.srcExtension),
                     sassDir = dirname(sassPath);
@@ -78,86 +83,78 @@ exports.plugin = {
                     })
                 }
 
-                var compile = function () {
-
+                var compile = async () => {
                     if (debug) {
                         internals.log('Compiling Sass at %s', sassPath);
                     }
 
-                    sass.render({
+                    var results = await sassRenderAsync({
                         file: sassPath,
                         includePaths: [sassDir].concat(settings.includePaths || []),
                         imagePath: settings.imagePath,
                         outputStyle: settings.outputStyle,
                         functions: settings.functions,
                         sourceComments: settings.sourceComments
-                    }, function (err, result) {
-
-                        if (err) {
-                            if (debug) {
-                                let message = err.formatted ? err.formatted : err.message;
-                                internals.log('Compilation failed: %s', message);
-                            }
-                            return internals.error(h, err);
-                        }
-
-                        if (debug) {
-                            internals.log('Compilation ok');
-                        }
-
-                        mkdirp(dirname(cssPath), 0x1c0, function (err) {
-                            if (err) {
-                                return err;
-                            }
-                            fs.writeFile(cssPath, result.css, 'utf8', function (err) {
-
-                                if (err && debug) {
-                                    internals.log("Error writing file - %s", err.message);
-                                }
-                                h.response(result.css).type('text/css');
-                            });
-                        });
                     });
+
+                    let err = results.err;
+                    if (err) {
+                        if (debug) {
+                            let message = err.formatted ? err.formatted : err.message;
+                            internals.log('Compilation failed: %s', message);
+                        }
+                        return internals.error(h, err);
+                    }
+
+                    if (debug) {
+                        internals.log('Compilation ok');
+                    }
+
+                    let errMk = await mkdirp(dirname(cssPath), 0x1c0);
+                    if (errMk) {
+                        return errMk;
+                    }
+                    let errFs = await fs.writeFile(cssPath, results.css, 'utf8');
+
+                    if (errFs && debug) {
+                        internals.log("Error writing file - %s", errFs.message);
+                    }
+                    return h.response(results.css).type('text/css');
                 };
 
                 if (force) {
                     return compile();
                 }
 
-                fs.stat(sassPath, function (err, sassStats) {
-                    if (err) {
-                        return internals.error(h, err);
-                    }
-                    fs.stat(cssPath, function (err, cssStats) {
-
-                        if (err) {
-                            if (err.code == 'ENOENT') {
-                                // css has not been compiled
-                                if (debug) {
-                                    internals.log('Compiled file not found, compiling %s', cssPath);
-                                }
-                                compile();
-
-                            } else {
-                                internals.error(h, err);
-                            }
-                        } else { // compiled version exists, check mtimes
-
-                            if (sassStats.mtime.getTime() > cssStats.mtime.getTime()) { // the sass version is newer
-                                if (debug) {
-                                    internals.log('Sass file is newer, compiling %s', cssPath);
-                                }
-                                compile();
-                            } else {
-                                // serve
-                                if (debug) {
-                                    internals.log('Compiled file found and up to date. Serving');
-                                }
-                                h.file(cssPath);
-                            }
+                let [errFs1, sassStats] = await fs.stat(sassPath);
+                if (errFs1) {
+                    return internals.error(h, errFs1);
+                }
+                let [errFs2, cssStats] = await fs.stat(cssPath);
+                if (errFs2) {
+                    if (errFs2.code == 'ENOENT') {
+                        // css has not been compiled
+                        if (debug) {
+                            internals.log('Compiled file not found, compiling %s', cssPath);
                         }
-                    });
-                });
+                        compile();
+                    } else {
+                        internals.error(h, errFs2);
+                    }
+                } else { // compiled version exists, check mtimes
+                    if (sassStats.mtime.getTime() > cssStats.mtime.getTime()) { // the sass version is newer
+                        if (debug) {
+                            internals.log('Sass file is newer, compiling %s', cssPath);
+                        }
+                        compile();
+                    } else {
+                        // serve
+                        if (debug) {
+                            internals.log('Compiled file found and up to date. Serving');
+                        }
+                        return h.file(cssPath);
+                    }
+                }
             }
         });
     },
