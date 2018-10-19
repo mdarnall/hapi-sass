@@ -15,10 +15,9 @@
     "node": ">=4.0.0"
   },
   "license": "MIT",
-  "peerDependencies": {
-  },
+  "peerDependencies": {},
   "dependencies": {
-    "hapi": "10.0.0",
-    "inert": "3.2.0"
+    "hapi": ">=17.0.0",
+    "inert": "^5.1.0"
   }
 }
