@@ -6,36 +6,42 @@
  * Licensed under the MIT license.
  */
 
-'use strict';
+"use strict";
 
-var Hapi = require('hapi');
-var HapiSass = require('../index');
-var Inert = require('inert');
+const Hapi = require("hapi");
+const HapiSass = require("../index");
+const Inert = require("inert");
 
-var server = new Hapi.Server();
-server.connection({ port: 1337 });
+const server = new Hapi.Server({ port: 3000, host: "localhost" });
 
-let options = {
-    src: './sass',
-    dest: './css',
-    force: true,
-    debug: true,
-    routePath: '/css/{file}.css',
-    includePaths: ['./vendor/sass'],
-    outputStyle: 'nested',
-    sourceComments: true,
-    functions: require('./functions'),
-    srcExtension: 'scss'
+const options = {
+  src: "./sass",
+  dest: "./css",
+  force: true,
+  debug: true,
+  routePath: "/css/{file}.css",
+  includePaths: ["./vendor/sass"],
+  outputStyle: "expanded",
+  sourceComments: true,
+  functions: require("./functions"),
+  srcExtension: "scss"
 };
 
-server.register([Inert, {
-        register: HapiSass,
-        options: options
-    }]
-    , function (err) {
-        if (err) throw err;
-        server.start(function () {
-            server.log("Hapi server started @ " + server.info.uri);
-        });
+const init = async () => {
+  await server.register([
+    Inert,
+    {
+      plugin: HapiSass,
+      options: options
     }
-);
+  ]);
+
+  await server.start();
+  console.log(`Server running at: ${server.info.uri}`);
+};
+process.on("unhandledRejection", err => {
+  console.log(err);
+  process.exit(1);
+});
+
+init();
