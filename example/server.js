@@ -17,14 +17,14 @@ const server = new Hapi.Server({ port: 3000, host: "localhost" });
 const options = {
   src: "./sass",
   dest: "./css",
-  force: false,
+  force: true,
   debug: true,
   routePath: "/css/{file}.css",
   includePaths: ["./vendor/sass"],
-  outputStyle: "nested",
+  outputStyle: "expanded",
   sourceComments: true,
   functions: require("./functions"),
-  srcExtension: "sass"
+  srcExtension: "scss"
 };
 
 const init = async () => {
